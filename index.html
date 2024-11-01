@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>dapcmasta's website</title>
+  <title>dapcmasta's website - Chat</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,27 +14,103 @@
     h1 {
       color: #333;
     }
-    a {
-      text-decoration: none;
+    #chat-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    #messages {
+      width: 100%;
+      height: 300px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      overflow-y: auto;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+    #message-input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    button {
       padding: 10px 20px;
       background-color: #3498db;
       color: white;
+      border: none;
       border-radius: 5px;
-      margin: 10px;
-      display: inline-block;
+      cursor: pointer;
     }
-    a:hover {
+    button:hover {
       background-color: #2980b9;
     }
   </style>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js"></script>
 </head>
 <body>
 
-  <h1>Welcome to dapcmasta's website!</h1>
+  <h1>Welcome to dapcmasta's website Chat!</h1>
+  
+  <div id="chat-container">
+    <div id="messages"></div>
+    <input type="text" id="message-input" placeholder="Type your message...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
 
-  <a href="about.html">About This Website</a>
-  <a href="rules.html">Rules of Using This Website</a>
+  <script>
+    // Firebase configuration (replace with your Firebase config)
+    const firebaseConfig = {
+    apiKey: "AIzaSyDPNydJhHlGfsp0rw1rsn96BA9akFW9p1w",
+    authDomain: "dapcmasta-website-chat.firebaseapp.com",
+    projectId: "dapcmasta-website-chat",
+    storageBucket: "dapcmasta-website-chat.firebasestorage.app",
+    messagingSenderId: "565410732346",
+    appId: "1:565410732346:web:cd18f6dc0b7d473ecbd803"
+  };
 
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore(app);
+
+    // Reference to the messages collection
+    const messagesRef = db.collection('messages');
+
+    // Function to load messages
+    function loadMessages() {
+      messagesRef.orderBy('timestamp').onSnapshot((snapshot) => {
+        const messagesContainer = document.getElementById('messages');
+        messagesContainer.innerHTML = '';  // Clear messages container
+        snapshot.forEach((doc) => {
+          const message = document.createElement('p');
+          message.textContent = doc.data().text;
+          messagesContainer.appendChild(message);
+        });
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      });
+    }
+
+    // Call loadMessages on page load
+    loadMessages();
+
+    // Function to send a message
+    function sendMessage() {
+      const input = document.getElementById('message-input');
+      const text = input.value;
+      if (text.trim() !== '') {
+        messagesRef.add({
+          text: text,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        input.value = '';  // Clear input field
+      }
+    }
+  </script>
 
 </body>
 </html>
